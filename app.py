@@ -21,15 +21,21 @@ def create_app(config_class):
 
         @app.route('/books', methods=['GET'])
         def get_books():
-            books = Book.query.all()
-            return jsonify([{
-                "id": book.id,
-                "title": book.title,
-                "author": book.author,
-                "published_date": book.published_date.strftime('%Y-%m-%d'),
-                "isbn": book.isbn,
-                "pages": book.pages
-            } for book in books])
+            page = request.args.get('page', 1, type=int)
+            per_page = request.args.get('per_page', 5, type=int)
+            books = Book.query.paginate(page=page, per_page=per_page, error_out=False)
+            return jsonify({
+                "books": [{
+                    "id": book.id,
+                    "title": book.title,
+                    "author": book.author,
+                    "published_date": book.published_date.strftime('%Y-%m-%d'),
+                    "isbn": book.isbn,
+                    "pages": book.pages
+                } for book in books.items],
+                "total_pages": books.pages,
+                "current_page": books.page
+            })
 
         @app.route('/books/<int:id>', methods=['GET'])
         def get_book(id):
@@ -78,8 +84,6 @@ def create_app(config_class):
                 return jsonify({"error": "Invalid request", "message": f"Missing required field: {str(e)}"}), 400
             except ValueError as e:
                 return jsonify({"error": "Invalid request", "message": str(e)}), 400
-            except Exception as e:
-                return jsonify({"error": "Internal server error", "message": str(e)}), 500
 
         @app.route('/books/<int:id>', methods=['DELETE'])
         def delete_book(id):

@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const pagesInput = document.getElementById('pages');
     const formTitle = document.getElementById('form-title');
     const cancelEditButton = document.getElementById('cancel-edit');
+    const paginationContainer = document.getElementById('pagination');
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -32,10 +33,14 @@ document.addEventListener('DOMContentLoaded', function() {
         resetForm();
     });
 
-    function fetchBooks() {
-        fetch('/books')
+    function fetchBooks(page = 1, perPage = 5) {
+        fetch(`/books?page=${page}&per_page=${perPage}`)
             .then(response => response.json())
-            .then(books => {
+            .then(data => {
+                const books = data.books;
+                const totalPages = data.total_pages;
+                const currentPage = data.current_page;
+
                 bookList.innerHTML = '';
                 books.forEach(book => {
                     const li = document.createElement('li');
@@ -48,6 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
                     bookList.appendChild(li);
                 });
+
+                updatePaginationUI(totalPages, currentPage);
 
                 document.querySelectorAll('.edit').forEach(button => {
                     button.addEventListener('click', function() {
@@ -76,53 +83,46 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    function addBook(book) {
+    function addBook(bookData) {
         fetch('/books', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify(book)
+            body: JSON.stringify(bookData),
         })
-        .then(response => {
-            if (response.ok) {
-                fetchBooks();
-                form.reset();
-            } else {
-                alert('Failed to add book');
-            }
+        .then(response => response.json())
+        .then(data => {
+            fetchBooks();
+            resetForm();
         });
     }
 
-    function updateBook(bookId, book) {
+    function updateBook(bookId, bookData) {
         fetch(`/books/${bookId}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify(book)
+            body: JSON.stringify(bookData),
         })
-        .then(response => {
-            if (response.ok) {
-                fetchBooks();
-                resetForm();
-            } else {
-                alert('Failed to update book');
-            }
+        .then(response => response.json())
+        .then(data => {
+            fetchBooks();
+            resetForm();
         });
     }
 
     function deleteBook(bookId) {
-        fetch(`/books/${bookId}`, {
-            method: 'DELETE'
-        })
-        .then(response => {
-            if (response.ok) {
+        if (confirm('Are you sure you want to delete this book?')) {
+            fetch(`/books/${bookId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
                 fetchBooks();
-            } else {
-                alert('Failed to delete book');
-            }
-        });
+            });
+        }
     }
 
     function resetForm() {
@@ -134,6 +134,19 @@ document.addEventListener('DOMContentLoaded', function() {
         pagesInput.value = '';
         formTitle.textContent = 'Add Book';
         cancelEditButton.style.display = 'none';
+    }
+
+    function updatePaginationUI(totalPages, currentPage) {
+        paginationContainer.innerHTML = '';
+
+        for (let i = 1; i <= totalPages; i++) {
+            const button = document.createElement('button');
+            button.textContent = i;
+            button.addEventListener('click', function() {
+                fetchBooks(i);
+            });
+            paginationContainer.appendChild(button);
+        }
     }
 
     fetchBooks();

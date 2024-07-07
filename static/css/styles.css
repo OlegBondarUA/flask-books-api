@@ -64,3 +64,10 @@ button#cancel-edit {
 form div {
     margin-bottom: 10px;
 }
+
+#pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
