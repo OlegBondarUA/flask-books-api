@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
@@ -14,6 +14,11 @@ def create_app(config_class):
 
     # Registration of routes
     with app.app_context():
+
+        @app.route('/')
+        def index():
+            return render_template('index.html')
+
         @app.route('/books', methods=['GET'])
         def get_books():
             books = Book.query.all()

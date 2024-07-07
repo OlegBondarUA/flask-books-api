@@ -1,0 +1,66 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+#book-list, #book-form {
+    background: #fff;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#books {
+    list-style: none;
+    padding: 0;
+}
+
+#books li {
+    background: #f4f4f4;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button.edit {
+    background-color: #3498db;
+    color: #fff;
+}
+
+button.delete {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+button#cancel-edit {
+    background-color: #95a5a6;
+    color: #fff;
+    margin-left: 10px;
+}
+
+form div {
+    margin-bottom: 10px;
+}

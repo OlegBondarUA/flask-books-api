@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books Management</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Books Management</h1>
+        <div id="book-list">
+            <h2>Books</h2>
+            <ul id="books"></ul>
+        </div>
+        <div id="book-form">
+            <h2 id="form-title">Add Book</h2>
+            <form id="form">
+                <input type="hidden" id="book-id">
+                <div>
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div>
+                    <label for="author">Author:</label>
+                    <input type="text" id="author" required>
+                </div>
+                <div>
+                    <label for="published_date">Published Date:</label>
+                    <input type="date" id="published_date" required>
+                </div>
+                <div>
+                    <label for="isbn">ISBN:</label>
+                    <input type="text" id="isbn" required>
+                </div>
+                <div>
+                    <label for="pages">Pages:</label>
+                    <input type="number" id="pages" required>
+                </div>
+                <button type="submit">Save</button>
+                <button type="button" id="cancel-edit" style="display: none;">Cancel</button>
+            </form>
+        </div>
+    </div>
+    <script src="/static/js/scripts.js"></script>
+</body>
+</html>
