@@ -8,7 +8,12 @@
 2. Set up a virtual environment (optional but recommended):
     ```bash
     python3 -m venv .venv
-    source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
+- On Windows, use  
+   ```bash
+    source .venv\Scripts\activate
+- On Mac / Linux, use
+   ```bash
+    source .venv/bin/activate
 
 3. Install the dependencies:
     ```bash

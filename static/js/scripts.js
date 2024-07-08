@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error(error.message);
                 });
             }
+            errorMessage.style.display = 'none';
             resetForm();
             fetchBooks();
         })
@@ -140,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error(error.message);
                 });
             }
+            errorMessage.style.display = 'none';
             resetForm();
             fetchBooks();
         })
@@ -159,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error(error.message);
                 });
             }
+            errorMessage.style.display = 'none';
             fetchBooks();
         })
         .catch(error => {
