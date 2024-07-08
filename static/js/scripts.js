@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(event) {
 				event.preventDefault();
 				const isbn = isbnInput.value;
+				const bookId = bookIdInput.value;
 				const bookData = {
 						title: titleInput.value,
 						author: authorInput.value,
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 						pages: pagesInput.value
 				};
 
-				if (isbn) {
+				if (isbn && bookId) {
 						updateBook(isbn, bookData);
 				} else {
 						addBook(bookData);
