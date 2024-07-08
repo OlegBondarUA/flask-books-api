@@ -13,22 +13,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorMessage = document.getElementById('error-message');
 
     form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const bookId = bookIdInput.value;
-        const bookData = {
-            title: titleInput.value,
-            author: authorInput.value,
-            published_date: publishedDateInput.value,
-            isbn: isbnInput.value,
-            pages: pagesInput.value
-        };
+				event.preventDefault();
+				const isbn = isbnInput.value;
+				const bookData = {
+						title: titleInput.value,
+						author: authorInput.value,
+						published_date: publishedDateInput.value,
+						isbn: isbn,
+						pages: pagesInput.value
+				};
 
-        if (bookId) {
-            updateBook(bookId, bookData);
-        } else {
-            addBook(bookData);
-        }
-    });
+				if (isbn) {
+						updateBook(isbn, bookData);
+				} else {
+						addBook(bookData);
+				}
+		});
+
+
+
 
     cancelEditButton.addEventListener('click', function() {
         resetForm();
