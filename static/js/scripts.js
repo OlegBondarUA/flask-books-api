@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const formTitle = document.getElementById('form-title');
     const cancelEditButton = document.getElementById('cancel-edit');
     const paginationContainer = document.getElementById('pagination');
+    const errorMessage = document.getElementById('error-message');
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -91,10 +92,20 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(bookData),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { throw new Error(data.message); });
+            }
+            return response.json();
+        })
         .then(data => {
             fetchBooks();
             resetForm();
+            errorMessage.style.display = 'none';
+        })
+        .catch(error => {
+            errorMessage.textContent = error.message;
+            errorMessage.style.display = 'block';
         });
     }
 
@@ -106,10 +117,20 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(bookData),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { throw new Error(data.message); });
+            }
+            return response.json();
+        })
         .then(data => {
             fetchBooks();
             resetForm();
+            errorMessage.style.display = 'none';
+        })
+        .catch(error => {
+            errorMessage.textContent = error.message;
+            errorMessage.style.display = 'block';
         });
     }
 
@@ -134,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         pagesInput.value = '';
         formTitle.textContent = 'Add Book';
         cancelEditButton.style.display = 'none';
+        errorMessage.style.display = 'none';
     }
 
     function updatePaginationUI(totalPages, currentPage) {

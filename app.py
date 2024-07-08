@@ -1,3 +1,5 @@
+from sqlalchemy.exc import StatementError
+
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -101,11 +103,16 @@ def create_app(config_class):
 
         @app.errorhandler(404)
         def not_found(error):
-            return jsonify({"error": "Not found", "message": str(error)}), 404
+            return jsonify({"message": "Resource not found"}), 404
 
         @app.errorhandler(500)
-        def internal_server_error(error):
-            return jsonify({"error": "Internal server error", "message": str(error)}), 500
+        def internal_error(error):
+            return jsonify({"message": "An internal error occurred"}), 500
+
+        @app.errorhandler(StatementError)
+        def handle_integrity_error(error):
+            db.session.rollback()
+            return jsonify({"message": "A book with this ISBN already exists."}), 400
 
     return app
 
