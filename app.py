@@ -1,5 +1,4 @@
 from sqlalchemy.exc import StatementError
-
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -39,9 +38,9 @@ def create_app(config_class):
                 "current_page": books.page
             })
 
-        @app.route('/books/<int:id>', methods=['GET'])
-        def get_book(id):
-            book = Book.query.get_or_404(id)
+        @app.route('/books/<string:isbn>', methods=['GET'])
+        def get_book(isbn):
+            book = Book.query.filter_by(isbn=isbn).first_or_404()
             return jsonify({
                 "id": book.id,
                 "title": book.title,
@@ -70,10 +69,10 @@ def create_app(config_class):
             except ValueError as e:
                 return jsonify({"error": "Invalid request", "message": str(e)}), 400
 
-        @app.route('/books/<int:id>', methods=['PUT'])
-        def update_book(id):
+        @app.route('/books/<string:isbn>', methods=['PUT'])
+        def update_book(isbn):
             try:
-                book = Book.query.get_or_404(id)
+                book = Book.query.filter_by(isbn=isbn).first_or_404()
                 data = request.json
                 book.title = data['title']
                 book.author = data['author']
@@ -87,10 +86,10 @@ def create_app(config_class):
             except ValueError as e:
                 return jsonify({"error": "Invalid request", "message": str(e)}), 400
 
-        @app.route('/books/<int:id>', methods=['DELETE'])
-        def delete_book(id):
+        @app.route('/books/<string:isbn>', methods=['DELETE'])
+        def delete_book(isbn):
             try:
-                book = Book.query.get_or_404(id)
+                book = Book.query.filter_by(isbn=isbn).first_or_404()
                 db.session.delete(book)
                 db.session.commit()
                 return jsonify({"message": "Book deleted successfully!"})

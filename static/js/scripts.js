@@ -48,8 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     li.innerHTML = `
                         ${book.title} by ${book.author}
                         <div>
-                            <button class="edit" data-id="${book.id}">Edit</button>
-                            <button class="delete" data-id="${book.id}">Delete</button>
+                            <button class="edit" data-isbn="${book.isbn}">Edit</button>
+                            <button class="delete" data-isbn="${book.isbn}">Delete</button>
                         </div>
                     `;
                     bookList.appendChild(li);
@@ -59,29 +59,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 document.querySelectorAll('.edit').forEach(button => {
                     button.addEventListener('click', function() {
-                        const bookId = this.dataset.id;
-                        fetch(`/books/${bookId}`)
+                        const isbn = this.dataset.isbn;
+                        fetch(`/books/${isbn}`)
                             .then(response => response.json())
                             .then(book => {
-                                bookIdInput.value = book.id;
-                                titleInput.value = book.title;
-                                authorInput.value = book.author;
-                                publishedDateInput.value = book.published_date;
-                                isbnInput.value = book.isbn;
-                                pagesInput.value = book.pages;
-                                formTitle.textContent = 'Edit Book';
-                                cancelEditButton.style.display = 'inline';
+                                populateForm(book);
                             });
                     });
                 });
 
                 document.querySelectorAll('.delete').forEach(button => {
                     button.addEventListener('click', function() {
-                        const bookId = this.dataset.id;
-                        deleteBook(bookId);
+                        const isbn = this.dataset.isbn;
+                        deleteBook(isbn);
                     });
                 });
             });
+    }
+
+    function populateForm(book) {
+        bookIdInput.value = book.id;
+        titleInput.value = book.title;
+        authorInput.value = book.author;
+        publishedDateInput.value = book.published_date;
+        isbnInput.value = book.isbn;
+        pagesInput.value = book.pages;
+        formTitle.innerText = 'Edit Book';
+        cancelEditButton.style.display = 'inline';
+    }
+
+    function resetForm() {
+        bookIdInput.value = '';
+        titleInput.value = '';
+        authorInput.value = '';
+        publishedDateInput.value = '';
+        isbnInput.value = '';
+        pagesInput.value = '';
+        formTitle.innerText = 'Add Book';
+        cancelEditButton.style.display = 'none';
     }
 
     function addBook(bookData) {
@@ -94,23 +109,21 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                return response.json().then(data => { throw new Error(data.message); });
+                return response.json().then(error => {
+                    throw new Error(error.message);
+                });
             }
-            return response.json();
-        })
-        .then(data => {
-            fetchBooks();
             resetForm();
-            errorMessage.style.display = 'none';
+            fetchBooks();
         })
         .catch(error => {
-            errorMessage.textContent = error.message;
+            errorMessage.innerText = error.message;
             errorMessage.style.display = 'block';
         });
     }
 
-    function updateBook(bookId, bookData) {
-        fetch(`/books/${bookId}`, {
+    function updateBook(isbn, bookData) {
+        fetch(`/books/${isbn}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -119,54 +132,48 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                return response.json().then(data => { throw new Error(data.message); });
+                return response.json().then(error => {
+                    throw new Error(error.message);
+                });
             }
-            return response.json();
-        })
-        .then(data => {
-            fetchBooks();
             resetForm();
-            errorMessage.style.display = 'none';
+            fetchBooks();
         })
         .catch(error => {
-            errorMessage.textContent = error.message;
+            errorMessage.innerText = error.message;
             errorMessage.style.display = 'block';
         });
     }
 
-    function deleteBook(bookId) {
-        if (confirm('Are you sure you want to delete this book?')) {
-            fetch(`/books/${bookId}`, {
-                method: 'DELETE',
-            })
-            .then(response => response.json())
-            .then(data => {
-                fetchBooks();
-            });
-        }
-    }
-
-    function resetForm() {
-        bookIdInput.value = '';
-        titleInput.value = '';
-        authorInput.value = '';
-        publishedDateInput.value = '';
-        isbnInput.value = '';
-        pagesInput.value = '';
-        formTitle.textContent = 'Add Book';
-        cancelEditButton.style.display = 'none';
-        errorMessage.style.display = 'none';
+    function deleteBook(isbn) {
+        fetch(`/books/${isbn}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(error => {
+                    throw new Error(error.message);
+                });
+            }
+            fetchBooks();
+        })
+        .catch(error => {
+            errorMessage.innerText = error.message;
+            errorMessage.style.display = 'block';
+        });
     }
 
     function updatePaginationUI(totalPages, currentPage) {
         paginationContainer.innerHTML = '';
-
         for (let i = 1; i <= totalPages; i++) {
             const button = document.createElement('button');
-            button.textContent = i;
+            button.innerText = i;
             button.addEventListener('click', function() {
                 fetchBooks(i);
             });
+            if (i === currentPage) {
+                button.classList.add('active');
+            }
             paginationContainer.appendChild(button);
         }
     }
