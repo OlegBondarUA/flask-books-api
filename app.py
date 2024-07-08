@@ -1,10 +1,9 @@
 from sqlalchemy.exc import StatementError
 from flask import Flask, request, jsonify, render_template
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 
-db = SQLAlchemy()
+from models import db, Book
 
 
 def create_app(config_class):
@@ -132,15 +131,6 @@ class TestConfig:
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-
-class Book(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    author = db.Column(db.String(100), nullable=False)
-    published_date = db.Column(db.Date, nullable=False)
-    isbn = db.Column(db.String(20), unique=True, nullable=False)
-    pages = db.Column(db.Integer, nullable=False)
 
 
 if __name__ == '__main__':
