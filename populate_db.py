@@ -2,6 +2,13 @@ from app import db, create_app, Book, Config
 from datetime import datetime
 
 
+def initialize_database():
+    app = create_app(Config)
+    with app.app_context():
+        db.create_all()
+        print("Database initialized.")
+
+
 def clean_database():
     app = create_app(Config)
     with app.app_context():
@@ -11,6 +18,7 @@ def clean_database():
 
 
 def add_books():
+    initialize_database()
     clean_database()
     app = create_app(Config)
     with app.app_context():
