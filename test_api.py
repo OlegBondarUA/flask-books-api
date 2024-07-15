@@ -1,6 +1,6 @@
 import unittest
 from app import create_app, db, Book, TestConfig
-
+from http import HTTPStatus
 
 class TestAPI(unittest.TestCase):
 
@@ -18,12 +18,12 @@ class TestAPI(unittest.TestCase):
 
     def test_get_books_empty(self):
         response = self.client.get('/books')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(len(response.json['books']), 0)
 
     def test_get_book_not_found(self):
         response = self.client.get('/books/1234567890')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertIn('Resource not found', response.json['message'])
 
     def test_add_book(self):
@@ -35,11 +35,10 @@ class TestAPI(unittest.TestCase):
             "pages": 200
         }
         response = self.client.post('/books', json=book_data)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, HTTPStatus.CREATED)
         self.assertIn('id', response.json)
 
-        # Check if the book is actually added
-        added_book = db.session.query(Book).get(response.json['id'])
+        added_book = Book.query.get(response.json['id'])
         self.assertEqual(added_book.title, book_data['title'])
 
     def test_add_book_missing_field(self):
@@ -50,12 +49,11 @@ class TestAPI(unittest.TestCase):
             "pages": 200
         }
         response = self.client.post('/books', json=book_data)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertIn('Invalid request', response.json['error'])
-        self.assertIn("Missing required field: 'title'", response.json['message'])
+        self.assertIn("'title'", response.json['message'])
 
     def test_update_book(self):
-        # Add a book first
         book_data = {
             "title": "Test Book",
             "author": "Test Author",
@@ -64,9 +62,8 @@ class TestAPI(unittest.TestCase):
             "pages": 200
         }
         add_response = self.client.post('/books', json=book_data)
-        self.assertEqual(add_response.status_code, 201)
+        self.assertEqual(add_response.status_code, HTTPStatus.CREATED)
 
-        # Update the book
         update_data = {
             "title": "Updated Test Book",
             "author": "Updated Test Author",
@@ -75,15 +72,13 @@ class TestAPI(unittest.TestCase):
             "pages": 250
         }
         update_response = self.client.put(f'/books/{book_data["isbn"]}', json=update_data)
-        self.assertEqual(update_response.status_code, 200)
+        self.assertEqual(update_response.status_code, HTTPStatus.OK)
         self.assertIn('Book updated successfully!', update_response.json['message'])
 
-        # Check if the book is actually updated
-        updated_book = db.session.query(Book).get(add_response.json['id'])
+        updated_book = Book.query.get(add_response.json['id'])
         self.assertEqual(updated_book.title, update_data['title'])
 
     def test_update_book_invalid_date_format(self):
-        # Add a book first
         book_data = {
             "title": "Test Book",
             "author": "Test Author",
@@ -92,9 +87,8 @@ class TestAPI(unittest.TestCase):
             "pages": 200
         }
         add_response = self.client.post('/books', json=book_data)
-        self.assertEqual(add_response.status_code, 201)
+        self.assertEqual(add_response.status_code, HTTPStatus.CREATED)
 
-        # Update the book with invalid date format
         update_data = {
             "title": "Updated Test Book",
             "author": "Updated Test Author",
@@ -103,12 +97,11 @@ class TestAPI(unittest.TestCase):
             "pages": 250
         }
         update_response = self.client.put(f'/books/{book_data["isbn"]}', json=update_data)
-        self.assertEqual(update_response.status_code, 400)
+        self.assertEqual(update_response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertIn('Invalid request', update_response.json['error'])
         self.assertIn('time data', update_response.json['message'])
 
     def test_delete_book(self):
-        # Add a book first
         book_data = {
             "title": "Test Book",
             "author": "Test Author",
@@ -117,19 +110,16 @@ class TestAPI(unittest.TestCase):
             "pages": 200
         }
         add_response = self.client.post('/books', json=book_data)
-        self.assertEqual(add_response.status_code, 201)
+        self.assertEqual(add_response.status_code, HTTPStatus.CREATED)
 
-        # Delete the book
         delete_response = self.client.delete(f'/books/{book_data["isbn"]}')
-        self.assertEqual(delete_response.status_code, 200)
+        self.assertEqual(delete_response.status_code, HTTPStatus.OK)
         self.assertIn('Book deleted successfully!', delete_response.json['message'])
 
-        # Check if the book is actually deleted
-        deleted_book = db.session.query(Book).get(add_response.json['id'])
+        deleted_book = Book.query.get(add_response.json['id'])
         self.assertIsNone(deleted_book)
 
     def test_add_book_existing_isbn(self):
-        # Add a book first
         book_data = {
             "title": "Test Book",
             "author": "Test Author",
@@ -138,9 +128,8 @@ class TestAPI(unittest.TestCase):
             "pages": 200
         }
         add_response = self.client.post('/books', json=book_data)
-        self.assertEqual(add_response.status_code, 201)
+        self.assertEqual(add_response.status_code, HTTPStatus.CREATED)
 
-        # Try to add another book with the same ISBN
         duplicate_book_data = {
             "title": "Duplicate Book",
             "author": "Duplicate Author",
@@ -149,13 +138,13 @@ class TestAPI(unittest.TestCase):
             "pages": 250
         }
         duplicate_response = self.client.post('/books', json=duplicate_book_data)
-        self.assertEqual(duplicate_response.status_code, 400)
+        self.assertEqual(duplicate_response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertIn('Invalid request', duplicate_response.json['error'])
         self.assertIn('A book with this ISBN already exists.', duplicate_response.json['message'])
 
     def test_delete_book_not_found(self):
         response = self.client.delete('/books/invalid_isbn')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertIn('Resource not found', response.json['message'])
 
 

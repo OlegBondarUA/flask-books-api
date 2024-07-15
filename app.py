@@ -38,11 +38,14 @@ def create_app(config_class):
             db.session.add(new_book)
             db.session.commit()
             return jsonify({"message": "Book added successfully!", "id": new_book.id}), HTTPStatus.CREATED
-        except (KeyError, ValueError) as e:
+        except TypeError as e:
             return jsonify({"error": "Invalid request", "message": str(e)}), HTTPStatus.BAD_REQUEST
-        except StatementError:
+        except ValueError as e:
+            return jsonify({"error": "Invalid request", "message": str(e)}), HTTPStatus.BAD_REQUEST
+        except StatementError as e:
             db.session.rollback()
-            return jsonify({"error": "Invalid request", "message": "A book with this ISBN already exists."}), HTTPStatus.BAD_REQUEST
+            return jsonify({"error": "Invalid request",
+                            "message": "A book with this ISBN already exists."}), HTTPStatus.BAD_REQUEST
 
     @app.route('/books/<string:isbn>', methods=['PUT'])
     def update_book(isbn):
